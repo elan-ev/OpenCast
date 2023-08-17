@@ -232,11 +232,72 @@ class PluginConfig extends ActiveRecord
             $xoctPublicationUsage->setTag($node->getElementsByTagName('tag')->item(0)->nodeValue ?: '');
             $xoctPublicationUsage->setSearchKey($node->getElementsByTagName('search_key')->item(0)->nodeValue ?: 'flavor');
             $xoctPublicationUsage->setMdType($node->getElementsByTagName('md_type')->item(0)->nodeValue);
+            $xoctPublicationUsage->setDisplayName($node->getElementsByTagName('display_name')->item(0)->nodeValue);
+            $xoctPublicationUsage->setGroupId($node->getElementsByTagName('group_id')->item(0)->nodeValue);
+            $mediatype = $node->getElementsByTagName('mediatype')->item(0)->nodeValue;
+            $xoctPublicationUsage->setMediaType($mediatype ?? '');
+            $ignore_object_setting = (bool) $node->getElementsByTagName('ignore_object_setting')->item(0)->nodeValue;
+            $xoctPublicationUsage->setIgnoreObjectSettings($ignore_object_setting);
 
             if (!PublicationUsage::where(['usage_id' => $xoctPublicationUsage->getUsageId()])->hasSets()) {
                 $xoctPublicationUsage->create();
             } else {
                 $xoctPublicationUsage->update();
+            }
+        }
+
+        /**
+         * @var $xoctPublicationSubUsage PublicationSubUsage
+         */
+        $xoct_publication_sub_usage = $domxml->getElementsByTagName('xoct_publication_sub_usage');
+
+        // We need to reset the subs.
+        PublicationSubUsage::flushDB();
+
+        foreach ($xoct_publication_sub_usage as $node) {
+            $parent_usage_id = $node->getElementsByTagName('parent_usage_id')->item(0)->nodeValue;
+            if (!$parent_usage_id) {
+                continue;
+            }
+            $xoctPublicationSubUsage = new PublicationSubUsage();
+            $xoctPublicationSubUsage->setParentUsageId($node->getElementsByTagName('parent_usage_id')->item(0)->nodeValue);
+            $xoctPublicationSubUsage->setTitle($node->getElementsByTagName('title')->item(0)->nodeValue);
+            $xoctPublicationSubUsage->setDescription($node->getElementsByTagName('description')->item(0)->nodeValue);
+            $xoctPublicationSubUsage->setChannel($node->getElementsByTagName('channel')->item(0)->nodeValue);
+            $xoctPublicationSubUsage->setFlavor($node->getElementsByTagName('flavor')->item(0)->nodeValue);
+            $xoctPublicationSubUsage->setTag($node->getElementsByTagName('tag')->item(0)->nodeValue ?: '');
+            $xoctPublicationSubUsage->setSearchKey($node->getElementsByTagName('search_key')->item(0)->nodeValue ?: 'flavor');
+            $xoctPublicationSubUsage->setMdType($node->getElementsByTagName('md_type')->item(0)->nodeValue);
+            $xoctPublicationSubUsage->setDisplayName($node->getElementsByTagName('display_name')->item(0)->nodeValue);
+            $xoctPublicationSubUsage->setGroupId($node->getElementsByTagName('group_id')->item(0)->nodeValue);
+            $mediatype = $node->getElementsByTagName('mediatype')->item(0)->nodeValue;
+            $xoctPublicationSubUsage->setMediaType($mediatype ?? '');
+            $ignore_object_setting = (bool) $node->getElementsByTagName('ignore_object_setting')->item(0)->nodeValue;
+            $xoctPublicationSubUsage->setIgnoreObjectSettings($ignore_object_setting);
+            $xoctPublicationSubUsage->create();
+        }
+
+        /**
+         * @var $xoctPublicationUsageGroup PublicationUsageGroup
+         */
+        $xoct_publication_usage_groups = $domxml->getElementsByTagName('xoct_publication_usage_group');
+
+        // We need to remove the publication usage groups no matter what!
+        PublicationUsageGroup::flushDB();
+
+        foreach ($xoct_publication_usage_groups as $node) {
+            $old_id = $node->getElementsByTagName('id')->item(0)->nodeValue;
+            $xoctPublicationUsageGroup = new PublicationUsageGroup();
+            $xoctPublicationUsageGroup->setName($node->getElementsByTagName('name')->item(0)->nodeValue);
+            $xoctPublicationUsageGroup->setDisplayName($node->getElementsByTagName('display_name')->item(0)->nodeValue);
+            $xoctPublicationUsageGroup->setDescription($node->getElementsByTagName('description')->item(0)->nodeValue);
+            $xoctPublicationUsageGroup->create();
+            $new_id = $xoctPublicationUsageGroup->getId();
+
+            // Mapping old id with new id, because we flushed the table.
+            foreach (PublicationUsage::where(['group_id' => intval($old_id)])->get() as $pu) {
+                $pu->setGroupId($new_id);
+                $pu->update();
             }
         }
     }
