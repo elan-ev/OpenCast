@@ -8,6 +8,8 @@ use DOMDocument;
 use DOMElement;
 use ilOpenCastPlugin;
 use srag\Plugins\Opencast\Model\Publication\Config\PublicationUsage;
+use srag\Plugins\Opencast\Model\Publication\Config\PublicationSubUsage;
+use srag\Plugins\Opencast\Model\Publication\Config\PublicationUsageGroup;
 use srag\Plugins\Opencast\Model\TermsOfUse\ToUManager;
 use srag\Plugins\Opencast\Model\User\xoctUser;
 use srag\Plugins\Opencast\Model\WorkflowParameter\Config\WorkflowParameter;
@@ -361,6 +363,44 @@ class PluginConfig extends ActiveRecord
             $xml_xoctPU->appendChild(new DOMElement('tag'))->appendChild(new DOMCdataSection($xoctPublicationUsage->getTag()));
             $xml_xoctPU->appendChild(new DOMElement('search_key'))->appendChild(new DOMCdataSection($xoctPublicationUsage->getSearchKey()));
             $xml_xoctPU->appendChild(new DOMElement('md_type'))->appendChild(new DOMCdataSection($xoctPublicationUsage->getMdType()));
+            $xml_xoctPU->appendChild(new DOMElement('group_id'))->appendChild(new DOMCdataSection($xoctPublicationUsage->getGroupId()));
+            $xml_xoctPU->appendChild(new DOMElement('display_name'))->appendChild(new DOMCdataSection($xoctPublicationUsage->getDisplayName()));
+            $xml_xoctPU->appendChild(new DOMElement('mediatype'))->appendChild(new DOMCdataSection($xoctPublicationUsage->getMediaType()));
+            $xml_xoctPU->appendChild(new DOMElement('ignore_object_setting'))->appendChild(new DOMCdataSection($xoctPublicationUsage->ignoreObjectSettings()));
+        }
+
+        // xoctPublicationSubUsage
+        $xml_xoctPublicationSubUsages = $config->appendChild(new DOMElement('xoct_publication_sub_usages'));
+        /**
+         * @var $xoctPublicationSubUsage PublicationSubUsage
+         */
+        foreach (PublicationSubUsage::get() as $xoctPublicationSubUsage) {
+            $xml_xoctPSU = $xml_xoctPublicationSubUsages->appendChild(new DOMElement('xoct_publication_sub_usage'));
+            $xml_xoctPSU->appendChild(new DOMElement('parent_usage_id'))->appendChild(new DOMCdataSection($xoctPublicationSubUsage->getParentUsageId()));
+            $xml_xoctPSU->appendChild(new DOMElement('title'))->appendChild(new DOMCdataSection($xoctPublicationSubUsage->getTitle()));
+            $xml_xoctPSU->appendChild(new DOMElement('description'))->appendChild(new DOMCdataSection($xoctPublicationSubUsage->getDescription()));
+            $xml_xoctPSU->appendChild(new DOMElement('channel'))->appendChild(new DOMCdataSection($xoctPublicationSubUsage->getChannel()));
+            $xml_xoctPSU->appendChild(new DOMElement('flavor'))->appendChild(new DOMCdataSection($xoctPublicationSubUsage->getFlavor()));
+            $xml_xoctPSU->appendChild(new DOMElement('tag'))->appendChild(new DOMCdataSection($xoctPublicationSubUsage->getTag()));
+            $xml_xoctPSU->appendChild(new DOMElement('search_key'))->appendChild(new DOMCdataSection($xoctPublicationSubUsage->getSearchKey()));
+            $xml_xoctPSU->appendChild(new DOMElement('md_type'))->appendChild(new DOMCdataSection($xoctPublicationSubUsage->getMdType()));
+            $xml_xoctPSU->appendChild(new DOMElement('group_id'))->appendChild(new DOMCdataSection($xoctPublicationSubUsage->getGroupId()));
+            $xml_xoctPSU->appendChild(new DOMElement('display_name'))->appendChild(new DOMCdataSection($xoctPublicationSubUsage->getDisplayName()));
+            $xml_xoctPSU->appendChild(new DOMElement('mediatype'))->appendChild(new DOMCdataSection($xoctPublicationSubUsage->getMediaType()));
+            $xml_xoctPSU->appendChild(new DOMElement('ignore_object_setting'))->appendChild(new DOMCdataSection($xoctPublicationSubUsage->ignoreObjectSettings()));
+        }
+
+        // xoctPublicationUsageGroups
+        $xml_xoctPublicationUsageGroups = $config->appendChild(new DOMElement('xoct_publication_usage_groups'));
+        /**
+         * @var $xoctPublicationUsageGroup PublicationUsageGroup
+         */
+        foreach (PublicationUsageGroup::get() as $xoctPublicationUsageGroup) {
+            $xml_xoctPUG = $xml_xoctPublicationUsageGroups->appendChild(new DOMElement('xoct_publication_usage_group'));
+            $xml_xoctPUG->appendChild(new DOMElement('id'))->appendChild(new DOMCdataSection($xoctPublicationUsageGroup->getId()));
+            $xml_xoctPUG->appendChild(new DOMElement('name'))->appendChild(new DOMCdataSection($xoctPublicationUsageGroup->getName()));
+            $xml_xoctPUG->appendChild(new DOMElement('display_name'))->appendChild(new DOMCdataSection($xoctPublicationUsageGroup->getDisplayName()));
+            $xml_xoctPUG->appendChild(new DOMElement('description'))->appendChild(new DOMCdataSection($xoctPublicationUsageGroup->getDescription()));
         }
 
         return $domxml->saveXML();
