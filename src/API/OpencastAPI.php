@@ -95,9 +95,9 @@ class OpencastAPI implements API
      */
     public function activateIngest(bool $activate): void
     {
-        if ($activate === true && !property_exists(self::$opencastApi, 'ingest')) {
+        if ($activate === true && !property_exists($this->api, 'ingest')) {
             $this->api = $this->decorateApiServicesForXoct($activate);
-        } elseif ($activate === false && property_exists(self::$opencastApi, 'ingest')) {
+        } elseif ($activate === false && property_exists($this->api, 'ingest')) {
             $this->api = $this->decorateApiServicesForXoct($activate);
         }
     }
