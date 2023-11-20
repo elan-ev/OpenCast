@@ -1,6 +1,7 @@
 <?php
 
 use ILIAS\Data\DataSize;
+use GuzzleHttp\Psr7;
 
 /**
  * Class xoctUploadFile
@@ -133,6 +134,6 @@ class xoctUploadFile
      */
     public function getFileStream()
     {
-        return fopen($this->getPath(), 'r');
+        return Psr7\Utils::streamFor(fopen($this->getPath(), 'r'));
     }
 }
