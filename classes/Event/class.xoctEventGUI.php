@@ -301,7 +301,7 @@ class xoctEventGUI extends xoctGUI
         }
 
         // add "schedule" button
-        if (ilObjOpenCastAccess::checkAction(ilObjOpenCastAccess::ACTION_ADD_EVENT) && PluginConfig::getConfig(
+        if (ilObjOpenCastAccess::checkAction(ilObjOpenCastAccess::ACTION_SCHEDULE_EVENT) && PluginConfig::getConfig(
             PluginConfig::F_CREATE_SCHEDULED_ALLOWED
         )) {
             $b = ilLinkButton::getInstance();
@@ -312,7 +312,7 @@ class xoctEventGUI extends xoctGUI
         }
 
         // add "Opencast Studio" button
-        if (ilObjOpenCastAccess::checkAction(ilObjOpenCastAccess::ACTION_ADD_EVENT) && PluginConfig::getConfig(
+        if (ilObjOpenCastAccess::checkAction(ilObjOpenCastAccess::ACTION_RECORD_EVENT) && PluginConfig::getConfig(
             PluginConfig::F_STUDIO_ALLOWED
         )) {
             $b = ilLinkButton::getInstance();
@@ -569,7 +569,7 @@ class xoctEventGUI extends xoctGUI
                                     'triggerer' : $(this),
                                     'options' : JSON.parse('[]')
                                 });
-                            });    
+                            });
                         };
                     </script>";
         }
@@ -676,7 +676,7 @@ class xoctEventGUI extends xoctGUI
 
     protected function createScheduled(): void
     {
-        if (!ilObjOpenCastAccess::checkAction(ilObjOpenCastAccess::ACTION_ADD_EVENT)) {
+        if (!ilObjOpenCastAccess::checkAction(ilObjOpenCastAccess::ACTION_SCHEDULE_EVENT)) {
             $this->main_tpl->setOnScreenMessage('failure', $this->txt('msg_no_access'), true);
             $this->cancel();
         }
@@ -793,7 +793,7 @@ class xoctEventGUI extends xoctGUI
 
     public function opencaststudio(): void
     {
-        if (!ilObjOpenCastAccess::checkAction(ilObjOpenCastAccess::ACTION_ADD_EVENT)) {
+        if (!ilObjOpenCastAccess::checkAction(ilObjOpenCastAccess::ACTION_RECORD_EVENT)) {
             $this->main_tpl->setOnScreenMessage('failure', $this->txt('msg_no_access'), true);
             $this->cancel();
         }
@@ -846,6 +846,18 @@ class xoctEventGUI extends xoctGUI
         $usage_type = filter_input(INPUT_GET, 'usage_type', FILTER_SANITIZE_STRING);
         $usage_id = filter_input(INPUT_GET, 'usage_id', FILTER_SANITIZE_STRING);
         $event = $this->event_repository->find($event_id);
+        // Check permission to download before anything else.
+        $xoctUser = xoctUser::getInstance($this->user);
+        if (!ilObjOpenCastAccess::checkAction(
+            ilObjOpenCastAccess::ACTION_DOWNLOAD_EVENT,
+            $event,
+            $xoctUser,
+            $this->objectSettings
+        )) {
+            $this->main_tpl->setOnScreenMessage('failure', $this->txt('msg_no_access'), true);
+            $this->cancel();
+        }
+
         $download_publications = $event->publications()->getDownloadPublications();
         // Now that we have multiple sub-usages, we first check for publication_id which is passed by the multi-dropdowns.
         if ($publication_id) {

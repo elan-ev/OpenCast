@@ -1,0 +1,96 @@
+<?php
+
+declare(strict_types=1);
+
+use ILIAS\Setup;
+
+/**
+ * Class ilOpenCastAgent
+ *
+ * @author Farbod Zamani Boroujeni <zamani@elan-ev.de>
+ */
+class ilOpenCastAgent extends Setup\Agent\NullAgent
+{
+    /**
+     * @inheritDoc
+     */
+    public function getStatusObjective(Setup\Metrics\Storage $storage): Setup\Objective
+    {
+        return new \ilDatabaseUpdateStepsMetricsCollectedObjective($storage, new ilOpenCastDBUpdateSteps());
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getUpdateObjective(Setup\Config $config = null): Setup\Objective
+    {
+        return new Setup\ObjectiveCollection(
+            "Updates of OpenCast object",
+            false,
+            ...$this->getObjectives()
+        );
+    }
+
+    /**
+     * Helper function to return all additional update objectives
+     */
+    protected function getObjectives(): array
+    {
+        $objectives = [];
+
+        // Because there are already 2 custom rbac operations, we don't need to perform the the common rbac operations addition on xoct type!
+
+        // Add custom rbac operations
+        $objectives[] = new ilAccessCustomRBACOperationAddedObjective(
+            "rep_robj_xoct_perm_download",
+            "Download",
+            "object",
+            2030,
+            [ilOpenCastPlugin::PLUGIN_ID]
+        );
+        $objectives[] = new ilAccessCustomRBACOperationAddedObjective(
+            "rep_robj_xoct_perm_record",
+            "Record",
+            "object",
+            2040,
+            [ilOpenCastPlugin::PLUGIN_ID]
+        );
+        $objectives[] = new ilAccessCustomRBACOperationAddedObjective(
+            "rep_robj_xoct_perm_schedule",
+            "Schedule",
+            "object",
+            2050,
+            [ilOpenCastPlugin::PLUGIN_ID]
+        );
+
+        // global $DIC;
+        // $db = $DIC->database();
+        // Remove copy right, not yet decided!
+        // $copy_ops_id = ilRbacReview::_getOperationIdByName("copy"); => 58
+
+        // $objectives[] = new ilAccessRBACOperationDeletedObjective(
+        //     ilOpenCastPlugin::PLUGIN_ID,
+        //     $copy_ops_id
+        // );
+
+        // db update steps
+        $objectives[] = new ilDatabaseUpdateStepsExecutedObjective(new ilOpenCastDBUpdateSteps());
+
+        return $objectives;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getNamedObjectives(?Setup\Config $config = null): array
+    {
+        return [
+            "OpencastRBACRights" => new Setup\ObjectiveConstructor(
+                "Updating Opencast RBAC permissions list",
+                function () {
+                    return new ilOpenCastUpdateRBACPermsListObjective();
+                }
+            )
+        ];
+    }
+}
