@@ -3,10 +3,11 @@
   "private": true,
   "dependencies": {
     "paella-basic-plugins": "^1.44.10",
-    "paella-core": "^1.49.7",
-    "paella-slide-plugins": "^1.48.1",
+    "paella-core": "^1.50.2",
+    "paella-slide-plugins": "^1.50.1",
     "paella-user-tracking": "^1.42.5",
-    "paella-zoom-plugin": "^1.41.3"
+    "paella-zoom-plugin": "^1.41.3",
+    "paella-mp4multiquality-plugin": "^1.47.1"
   },
   "scripts": {
     "build": "webpack --mode production",
