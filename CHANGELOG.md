@@ -1,5 +1,9 @@
 # Changelog
 
+## Version 9.0.1
+- [FIX] #387: fix playback bar visibility via paella-core upgrade fixes #383: 
+  support multi-quality via new paella plugin
+
 ## Version 9.0.0
 - [FEATURE] Support for ILIAS 9
 - All fixes from version 8.2.2 - 8.3.1, see Release Notes of release_8 Branch.
