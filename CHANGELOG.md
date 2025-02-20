@@ -1,5 +1,8 @@
 # Changelog
 
+## Version 9.0.2
+- [FIX] call database on null when using Plugin-API #384
+
 ## Version 9.0.1
 - [FIX] #387: fix playback bar visibility via paella-core upgrade fixes #383: 
   support multi-quality via new paella plugin
